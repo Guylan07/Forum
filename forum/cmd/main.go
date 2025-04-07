@@ -11,7 +11,9 @@ import (
 
 // Ajoute des fonctions personnalisées aux templates
 func init() {
-	template.FuncMap{
+	// Crée un nouveau template avec les fonctions nécessaires pour la pagination
+	// Ces fonctions seront disponibles dans tous les templates
+	template.New("").Funcs(template.FuncMap{
 		"add": func(a, b int) int {
 			return a + b
 		},
@@ -25,7 +27,7 @@ func init() {
 			}
 			return result
 		},
-	}
+	})
 }
 
 func main() {
