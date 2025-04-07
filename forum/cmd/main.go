@@ -1,11 +1,32 @@
 package main
+
 import (
 	"forum/internal/database"
 	"forum/internal/handlers"
 	"forum/internal/middleware"
+	"html/template"
 	"log"
 	"net/http"
 )
+
+// Ajoute des fonctions personnalisées aux templates
+func init() {
+	template.FuncMap{
+		"add": func(a, b int) int {
+			return a + b
+		},
+		"subtract": func(a, b int) int {
+			return a - b
+		},
+		"sequence": func(start, end int) []int {
+			var result []int
+			for i := start; i <= end; i++ {
+				result = append(result, i)
+			}
+			return result
+		},
+	}
+}
 
 func main() {
 	// On initialise la base de données au démarrage du programme
@@ -29,17 +50,13 @@ func main() {
 	fs := http.FileServer(http.Dir("./static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 	
-	// On applique le middleware d'authentification à toutes les routes
-	// C'est comme placer un portier discret à l'entrée qui vérifie les identités sans bloquer le passage
-	authMiddleware := middleware.AuthMiddleware(mux)
-	
 	// On configure les routes pour l'authentification
 	// C'est comme indiquer où se trouvent les guichets d'inscription, de connexion et de déconnexion
 	mux.HandleFunc("/register", handlers.RegisterHandler)
 	mux.HandleFunc("/login", handlers.LoginHandler)
 	mux.HandleFunc("/logout", handlers.LogoutHandler)
 	
-	// Exemple de routes protégées (qui seront implémentées plus tard)
+	// Exemple de routes protégées
 	// C'est comme créer une zone réservée aux membres
 	protectedMux := http.NewServeMux()
 	protectedMux.HandleFunc("/profile", func(w http.ResponseWriter, r *http.Request) {
@@ -49,22 +66,27 @@ func main() {
 	// On ajoute un gardien spécial pour cette zone qui vérifie que l'utilisateur est bien connecté
 	mux.Handle("/profile", middleware.RequireAuthMiddleware(protectedMux))
 	
-	// Page d'accueil du site
-	// C'est comme configurer ce qu'on voit en entrant dans le bâtiment
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// On vérifie que l'URL est exactement "/" (la racine)
-		// C'est comme s'assurer que le visiteur est bien à l'entrée principale
-		if r.URL.Path != "/" {
-			// Si l'URL ne correspond à aucune page connue, on affiche une erreur 404
-			// C'est comme dire "Cette pièce n'existe pas dans notre bâtiment"
-			http.NotFound(w, r)
-			return
-		}
-		// Affiche un message simple sur la page d'accueil
-		w.Write([]byte("Home page"))
-	})
+	// Routes pour les pages principales
+	mux.HandleFunc("/", handlers.HomeHandler)
 	
-	// On démarre le serveur sur le port 8080
+	// Routes pour les posts
+	mux.HandleFunc("/post/create", handlers.CreatePostHandler)
+	mux.HandleFunc("/post/", handlers.ViewPostHandler)
+	mux.HandleFunc("/post/edit/", handlers.EditPostHandler)
+	mux.HandleFunc("/post/delete/", handlers.DeletePostHandler)
+	mux.HandleFunc("/post/react", handlers.ReactToPostHandler)
+	
+	// Routes pour les commentaires
+	mux.HandleFunc("/comment/create", handlers.CreateCommentHandler)
+	mux.HandleFunc("/comment/edit", handlers.EditCommentHandler)
+	mux.HandleFunc("/comment/delete/", handlers.DeleteCommentHandler)
+	mux.HandleFunc("/comment/react", handlers.ReactToCommentHandler)
+	
+	// On applique le middleware d'authentification à toutes les routes
+	// C'est comme placer un portier discret à l'entrée qui vérifie les identités sans bloquer le passage
+	authMiddleware := middleware.AuthMiddleware(mux)
+	
+	// On démarre le serveur sur le port 8085
 	// C'est comme ouvrir officiellement les portes du bâtiment et commencer à accueillir les visiteurs
 	log.Println("Starting server on :8085...")
 	// Si le serveur rencontre une erreur fatale, on enregistre l'erreur
