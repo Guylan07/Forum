@@ -26,7 +26,7 @@ type Post struct {
 type Category struct {
 	ID          int
 	Name        string
-	Description string
+	Description sql.NullString // Modifié pour gérer les valeurs NULL
 }
 
 // Comment représente un commentaire sur un post
