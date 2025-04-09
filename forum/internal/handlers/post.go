@@ -3,6 +3,7 @@ package handlers
 import (
 	"forum/internal/middleware"
 	"forum/internal/models"
+	"forum/internal/utils"
 	"html/template"
 	"log"
 	"net/http"
@@ -86,7 +87,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Charger et exécuter le template
-	tmpl, err := template.ParseFiles("templates/base.html", "templates/home.html")
+	tmpl, err := utils.ParseTemplate("templates/base.html", "templates/home.html")
 	if err != nil {
 		http.Error(w, "Error loading templates", http.StatusInternalServerError)
 		log.Printf("Error parsing template: %v", err)
@@ -126,7 +127,7 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Charger et exécuter le template
-		tmpl, err := template.ParseFiles("templates/base.html", "templates/create_post.html")
+		tmpl, err := utils.ParseTemplate("templates/base.html", "templates/create_post.html")
 		if err != nil {
 			http.Error(w, "Error loading templates", http.StatusInternalServerError)
 			log.Printf("Error parsing template: %v", err)
@@ -238,7 +239,7 @@ func ViewPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Charger et exécuter le template
-	tmpl, err := template.ParseFiles("templates/base.html", "templates/view_post.html")
+	tmpl, err := utils.ParseTemplate("templates/base.html", "templates/view_post.html")
 	if err != nil {
 		http.Error(w, "Error loading templates", http.StatusInternalServerError)
 		log.Printf("Error parsing template: %v", err)
@@ -317,7 +318,7 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Charger et exécuter le template
-		tmpl, err := template.ParseFiles("templates/base.html", "templates/edit_post.html")
+		tmpl, err := utils.ParseTemplate("templates/base.html", "templates/edit_post.html")
 		if err != nil {
 			http.Error(w, "Error loading templates", http.StatusInternalServerError)
 			log.Printf("Error parsing template: %v", err)
