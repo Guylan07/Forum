@@ -4,7 +4,6 @@ import (
 	"forum/internal/middleware"
 	"forum/internal/models"
 	"forum/internal/utils"
-	"html/template"
 	"log"
 	"net/http"
 	"strconv"
