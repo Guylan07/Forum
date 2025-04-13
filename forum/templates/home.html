@@ -22,7 +22,6 @@
                 </select>
             </div>
             
-            <!-- Gardez les autres filtres si présents -->
             {{if .CategoryID}}
                 <input type="hidden" name="category" value="{{.CategoryID}}">
             {{end}}
@@ -56,7 +55,6 @@
                 </div>
             {{end}}
             
-            <!-- Pagination -->
             {{if gt .TotalPages 1}}
                 <div class="pagination">
                     {{if gt .CurrentPage 1}}

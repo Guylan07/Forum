@@ -5,9 +5,7 @@ import (
 	"path/filepath"
 )
 
-// ParseTemplate charge les templates et y ajoute les fonctions personnalisées
 func ParseTemplate(baseTemplate string, templates ...string) (*template.Template, error) {
-	// Créer un nouveau template avec les fonctions personnalisées
 	funcMap := template.FuncMap{
 		"add": func(a, b int) int {
 			return a + b
@@ -24,9 +22,7 @@ func ParseTemplate(baseTemplate string, templates ...string) (*template.Template
 		},
 	}
 	
-	// Ajouter le template de base
 	allTemplates := append([]string{baseTemplate}, templates...)
 	
-	// Créer et parser le template
 	return template.New(filepath.Base(baseTemplate)).Funcs(funcMap).ParseFiles(allTemplates...)
 }

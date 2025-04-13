@@ -130,9 +130,7 @@
     </div>
     
     <script>
-        // Simple script to toggle the comment edit form
         document.addEventListener('DOMContentLoaded', function() {
-            // Toggle edit form when Edit button is clicked
             document.querySelectorAll('.edit-comment-toggle').forEach(button => {
                 button.addEventListener('click', function() {
                     const commentId = this.dataset.commentId;
@@ -141,7 +139,6 @@
                 });
             });
             
-            // Hide edit form when Cancel button is clicked
             document.querySelectorAll('.cancel-edit').forEach(button => {
                 button.addEventListener('click', function() {
                     const commentId = this.dataset.commentId;
