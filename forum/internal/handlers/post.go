@@ -1,11 +1,15 @@
 package handlers
 
 import (
+	"fmt"
 	"forum/internal/middleware"
 	"forum/internal/models"
 	"forum/internal/utils"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -127,9 +131,10 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		err := r.ParseForm()
+		r.Body = http.MaxBytesReader(w, r.Body, 25*1024*1024)
+		err := r.ParseMultipartForm(25 * 1024 * 1024)
 		if err != nil {
-			http.Error(w, "Bad request", http.StatusBadRequest)
+			http.Error(w, "The form is too large. Please reduce the size of your image.", http.StatusBadRequest)
 			return
 		}
 
@@ -155,6 +160,59 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			log.Printf("Error creating post: %v", err)
 			return
+		}
+
+		file, header, err := r.FormFile("image")
+		if err == nil {
+			defer file.Close()
+
+			buff := make([]byte, 512)
+			_, err = file.Read(buff)
+			if err != nil {
+				http.Error(w, "Error reading file", http.StatusInternalServerError)
+				log.Printf("Error reading file: %v", err)
+				return
+			}
+
+			file.Seek(0, io.SeekStart)
+
+			filetype := http.DetectContentType(buff)
+			if !isAllowedImageType(filetype) {
+				http.Error(w, "The provided file format is not allowed. Please upload a JPEG, PNG or GIF image", http.StatusBadRequest)
+				return
+			}
+
+			filename := fmt.Sprintf("%d_%s", currentUser.ID, header.Filename)
+			filename = sanitizeFilename(filename)
+			filepath := filepath.Join(UploadDir, filename)
+
+			dst, err := os.Create(filepath)
+			if err != nil {
+				http.Error(w, "Error saving the file", http.StatusInternalServerError)
+				log.Printf("Error creating file: %v", err)
+				return
+			}
+			defer dst.Close()
+
+			if _, err = io.Copy(dst, file); err != nil {
+				http.Error(w, "Error saving the file", http.StatusInternalServerError)
+				log.Printf("Error copying file: %v", err)
+				return
+			}
+
+			imageID, err := models.SaveImage(filename, currentUser.ID)
+			if err != nil {
+				http.Error(w, "Error saving image information", http.StatusInternalServerError)
+				log.Printf("Error saving image info: %v", err)
+				return
+			}
+
+			err = models.AssociateImageWithPost(imageID, postID)
+			if err != nil {
+				http.Error(w, "Error associating image with post", http.StatusInternalServerError)
+				log.Printf("Error associating image: %v", err)
+				return
+			}
 		}
 
 		http.Redirect(w, r, "/post/"+strconv.Itoa(postID), http.StatusSeeOther)
@@ -201,8 +259,14 @@ func ViewPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	postImage, err := models.GetPostImage(postID)
+	if err != nil && err.Error() != "image not found" {
+		log.Printf("Error fetching post image: %v", err)
+	}
+
 	data := map[string]interface{}{
 		"Post":        post,
+		"PostImage":   postImage,
 		"Comments":    comments,
 		"CurrentUser": currentUser,
 		"CanEdit":     currentUser != nil && (currentUser.ID == post.UserID || currentUser.Role == "admin"),
@@ -257,6 +321,11 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	postImage, err := models.GetPostImage(postID)
+	if err != nil && err.Error() != "image not found" {
+		log.Printf("Error fetching post image: %v", err)
+	}
+
 	if r.Method == http.MethodGet {
 		categories, err := models.GetAllCategories()
 		if err != nil {
@@ -272,6 +341,7 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 
 		data := map[string]interface{}{
 			"Post":               post,
+			"PostImage":          postImage,
 			"Categories":         categories,
 			"SelectedCategories": selectedCategoryIDs,
 			"CurrentUser":        currentUser,
@@ -293,15 +363,17 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		err := r.ParseForm()
+		r.Body = http.MaxBytesReader(w, r.Body, 25*1024*1024)
+		err := r.ParseMultipartForm(25 * 1024 * 1024)
 		if err != nil {
-			http.Error(w, "Bad request", http.StatusBadRequest)
+			http.Error(w, "The form is too large. Please reduce the size of your image.", http.StatusBadRequest)
 			return
 		}
 
 		title := r.FormValue("title")
 		content := r.FormValue("content")
 		categoryIDs := r.Form["categories"]
+		removeImage := r.FormValue("remove_image") == "true"
 
 		var categoryIDsInt []int
 		for _, idStr := range categoryIDs {
@@ -321,6 +393,73 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			log.Printf("Error updating post: %v", err)
 			return
+		}
+
+		if removeImage && postImage != nil {
+			err = models.DeletePostImage(postID)
+			if err != nil {
+				log.Printf("Error removing post image: %v", err)
+			}
+		} else {
+			file, header, err := r.FormFile("image")
+			if err == nil {
+				defer file.Close()
+
+				buff := make([]byte, 512)
+				_, err = file.Read(buff)
+				if err != nil {
+					http.Error(w, "Error reading file", http.StatusInternalServerError)
+					log.Printf("Error reading file: %v", err)
+					return
+				}
+
+				file.Seek(0, io.SeekStart)
+
+				filetype := http.DetectContentType(buff)
+				if !isAllowedImageType(filetype) {
+					http.Error(w, "The provided file format is not allowed. Please upload a JPEG, PNG or GIF image", http.StatusBadRequest)
+					return
+				}
+
+				filename := fmt.Sprintf("%d_%s", currentUser.ID, header.Filename)
+				filename = sanitizeFilename(filename)
+				filepath := filepath.Join(UploadDir, filename)
+
+				dst, err := os.Create(filepath)
+				if err != nil {
+					http.Error(w, "Error saving the file", http.StatusInternalServerError)
+					log.Printf("Error creating file: %v", err)
+					return
+				}
+				defer dst.Close()
+
+				if _, err = io.Copy(dst, file); err != nil {
+					http.Error(w, "Error saving the file", http.StatusInternalServerError)
+					log.Printf("Error copying file: %v", err)
+					return
+				}
+
+				if postImage != nil {
+					err = models.DeletePostImage(postID)
+					if err != nil {
+						log.Printf("Error removing old post image: %v", err)
+					}
+				}
+
+				imageID, err := models.SaveImage(filename, currentUser.ID)
+				if err != nil {
+					http.Error(w, "Error saving image information", http.StatusInternalServerError)
+					log.Printf("Error saving image info: %v", err)
+					return
+				}
+
+				err = models.AssociateImageWithPost(imageID, postID)
+				if err != nil {
+					http.Error(w, "Error associating image with post", http.StatusInternalServerError)
+					log.Printf("Error associating image: %v", err)
+					return
+				}
+			}
 		}
 
 		http.Redirect(w, r, "/post/"+strconv.Itoa(postID), http.StatusSeeOther)
