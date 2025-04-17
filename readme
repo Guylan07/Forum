@@ -1,3 +1,9 @@
+Groupe de :
+-Guylan Richaud
+-Paul Christol (Il a joué à minecraft, et à sorti une vidéo youtube entre temps super (absolument utile pour le forum) , MAIS! il a fait une branch (il m'a demandé de l'aide))
+-Anderson (N'est même pas dans le git)
+-Paolo (Il a regardé le code...)
+
 # Commande BASH à utiliser avant de lancer le forum
 export GOOGLE_CLIENT_ID="461655867322-08i9h35a0cjmeivo4vtckj7d2ih8pgtl.apps.googleusercontent.com"
 export GOOGLE_CLIENT_SECRET="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"
@@ -119,3 +125,14 @@ UPLOAD_DIR=./static/uploads
 
 # Mode de développement (true/false)
 DEV_MODE=true
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+Je précise que je me sui servi de chatgpt, claude, cursor ai et vu que j'ai tout fait (Guylan Richaud) je m'en suis principalement servi
+Je veux même pas être dev moi je veux être cyber donc bon
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
