@@ -13,20 +13,29 @@ import (
 	"net/http"
 	"os"
 	"time"
+	
+	// Ajout du package godotenv
+	"github.com/joho/godotenv"
 )
 
 // Ajoute des fonctions personnalisées aux templates et configure les variables d'environnement
 func init() {
-// Configuration des variables d'environnement pour OAuth
-if os.Getenv("GOOGLE_CLIENT_ID") == "" {
-    os.Setenv("GOOGLE_CLIENT_ID", "461655867322-08i9h35a0cjmeivo4vtckj7d2ih8pgtl.apps.googleusercontent.com")
-    os.Setenv("GOOGLE_CLIENT_SECRET", "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")
-}
-
-if os.Getenv("GITHUB_CLIENT_ID") == "" {
-    os.Setenv("GITHUB_CLIENT_ID", "Ov23lif9zL2FSVnEVeaO")
-    os.Setenv("GITHUB_CLIENT_SECRET", "49f00f4362b1c66b30ca2613d582e0f9295df62c")
-}
+    // Charger les variables d'environnement du fichier .env
+    err := godotenv.Load()
+    if err != nil {
+        log.Println("Warning: Could not load .env file:", err)
+        
+        // Valeurs par défaut si le fichier .env n'est pas trouvé
+        if os.Getenv("GOOGLE_CLIENT_ID") == "" {
+            os.Setenv("GOOGLE_CLIENT_ID", "461655867322-08i9h35a0cjmeivo4vtckj7d2ih8pgtl.apps.googleusercontent.com")
+            os.Setenv("GOOGLE_CLIENT_SECRET", "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")
+        }
+        
+        if os.Getenv("GITHUB_CLIENT_ID") == "" {
+            os.Setenv("GITHUB_CLIENT_ID", "Ov23lif9zL2FSVnEVeaO")
+            os.Setenv("GITHUB_CLIENT_SECRET", "49f00f4362b1c66b30ca2613d582e0f9295df62c")
+        }
+    }
     
     // Crée un nouveau template avec les fonctions nécessaires pour la pagination
     // Ces fonctions seront disponibles dans tous les templates
@@ -50,15 +59,29 @@ if os.Getenv("GITHUB_CLIENT_ID") == "" {
 func main() {
 	// Définir et lire les options de ligne de commande
 	var (
-		dbPath      = flag.String("db", "./forum.db", "Chemin vers la base de données SQLite")
-		httpPort    = flag.Int("http", 8085, "Port HTTP")
-		httpsPort   = flag.Int("https", 8443, "Port HTTPS")
-		certDir     = flag.String("certs", "./certs", "Dossier des certificats SSL")
-		domain      = flag.String("domain", "localhost", "Nom de domaine pour HTTPS")
-		dev         = flag.Bool("dev", true, "Mode développement (certificat auto-signé)")
-		uploadDir   = flag.String("uploads", "./static/uploads", "Dossier pour les uploads")
+		dbPath      = flag.String("db", os.Getenv("DB_PATH"), "Chemin vers la base de données SQLite")
+		httpPort    = flag.Int("http", getEnvInt("HTTP_PORT", 8085), "Port HTTP")
+		httpsPort   = flag.Int("https", getEnvInt("HTTPS_PORT", 8443), "Port HTTPS")
+		certDir     = flag.String("certs", os.Getenv("CERT_DIR"), "Dossier des certificats SSL")
+		domain      = flag.String("domain", os.Getenv("DOMAIN"), "Nom de domaine pour HTTPS")
+		dev         = flag.Bool("dev", getEnvBool("DEV_MODE", true), "Mode développement (certificat auto-signé)")
+		uploadDir   = flag.String("uploads", os.Getenv("UPLOAD_DIR"), "Dossier pour les uploads")
 	)
 	flag.Parse()
+	
+	// Utiliser des valeurs par défaut si les variables ne sont pas définies
+	if *dbPath == "" {
+	    *dbPath = "./forum.db"
+	}
+	if *certDir == "" {
+	    *certDir = "./certs"
+	}
+	if *uploadDir == "" {
+	    *uploadDir = "./static/uploads"
+	}
+	if *domain == "" {
+	    *domain = "localhost"
+	}
 
 	// Créer les dossiers nécessaires s'ils n'existent pas
 	os.MkdirAll(*certDir, 0755)
@@ -193,4 +216,29 @@ func main() {
 		log.Printf("Starting HTTPS server with Let's Encrypt certificates...")
 		log.Fatal(httpsServer.ListenAndServeTLS("", ""))
 	}
+}
+
+// Fonction utilitaire pour obtenir un entier depuis une variable d'environnement
+func getEnvInt(key string, defaultVal int) int {
+	if val, ok := os.LookupEnv(key); ok {
+		var result int
+		_, err := fmt.Sscanf(val, "%d", &result)
+		if err == nil {
+			return result
+		}
+	}
+	return defaultVal
+}
+
+// Fonction utilitaire pour obtenir un booléen depuis une variable d'environnement
+func getEnvBool(key string, defaultVal bool) bool {
+	if val, ok := os.LookupEnv(key); ok {
+		if val == "true" || val == "1" || val == "yes" {
+			return true
+		}
+		if val == "false" || val == "0" || val == "no" {
+			return false
+		}
+	}
+	return defaultVal
 }
