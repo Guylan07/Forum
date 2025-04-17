@@ -17,16 +17,16 @@ import (
 
 // Ajoute des fonctions personnalisées aux templates et configure les variables d'environnement
 func init() {
-    // Configuration des variables d'environnement pour OAuth
-    if os.Getenv("GOOGLE_CLIENT_ID") == "" {
-        os.Setenv("GOOGLE_CLIENT_ID", "fake-client-id")
-        os.Setenv("GOOGLE_CLIENT_SECRET", "fake-client-secret")
-    }
-    
-    if os.Getenv("GITHUB_CLIENT_ID") == "" {
-        os.Setenv("GITHUB_CLIENT_ID", "fake-client-id")
-        os.Setenv("GITHUB_CLIENT_SECRET", "fake-client-secret")
-    }
+// Configuration des variables d'environnement pour OAuth
+if os.Getenv("GOOGLE_CLIENT_ID") == "" {
+    os.Setenv("GOOGLE_CLIENT_ID", "461655867322-08i9h35a0cjmeivo4vtckj7d2ih8pgtl.apps.googleusercontent.com")
+    os.Setenv("GOOGLE_CLIENT_SECRET", "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")
+}
+
+if os.Getenv("GITHUB_CLIENT_ID") == "" {
+    os.Setenv("GITHUB_CLIENT_ID", "Ov23lif9zL2FSVnEVeaO")
+    os.Setenv("GITHUB_CLIENT_SECRET", "49f00f4362b1c66b30ca2613d582e0f9295df62c")
+}
     
     // Crée un nouveau template avec les fonctions nécessaires pour la pagination
     // Ces fonctions seront disponibles dans tous les templates
