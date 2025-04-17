@@ -99,7 +99,7 @@ UPLOAD_DIR=./static/uploads
 # Mode de développement (true/false)
 DEV_MODE=true
 
-Commande BASH à utiliser avant de lancer le forum
+# Commande BASH à utiliser avant de lancer le forum
 export GOOGLE_CLIENT_ID="461655867322-08i9h35a0cjmeivo4vtckj7d2ih8pgtl.apps.googleusercontent.com"
 export GOOGLE_CLIENT_SECRET="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"
 export GITHUB_CLIENT_ID="Ov23lif9zL2FSVnEVeaO"
