@@ -1,3 +1,24 @@
+# Commande BASH à utiliser avant de lancer le forum
+export GOOGLE_CLIENT_ID="461655867322-08i9h35a0cjmeivo4vtckj7d2ih8pgtl.apps.googleusercontent.com"
+export GOOGLE_CLIENT_SECRET="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"
+export GITHUB_CLIENT_ID="Ov23lif9zL2FSVnEVeaO"
+export GITHUB_CLIENT_SECRET="49f00f4362b1c66b30ca2613d582e0f9295df62c"
+
+# Pour lancer le forum
+
+Faites un cd forum/ dans le terminal
+Faites go run cmd/main.go
+Connecter vous à l'adresse : https://localhost:8443/
+Vous pouvez vous servir du forum
+Vous avez le compte admin qui vous permets de supprimer tout les posts
+
+email : admin@gmail.com
+mdp : Admin123
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 **Fonctionnalités de base:**
 - Création d'un forum permettant la communication entre utilisateurs
 - Système d'inscription et d'authentification des utilisateurs
@@ -98,9 +119,3 @@ UPLOAD_DIR=./static/uploads
 
 # Mode de développement (true/false)
 DEV_MODE=true
-
-# Commande BASH à utiliser avant de lancer le forum
-export GOOGLE_CLIENT_ID="461655867322-08i9h35a0cjmeivo4vtckj7d2ih8pgtl.apps.googleusercontent.com"
-export GOOGLE_CLIENT_SECRET="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"
-export GITHUB_CLIENT_ID="Ov23lif9zL2FSVnEVeaO"
-export GITHUB_CLIENT_SECRET="49f00f4362b1c66b30ca2613d582e0f9295df62c"
