@@ -75,4 +75,32 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-test
+
+# Informations d'authentification OAuth
+
+# Google OAuth
+GOOGLE_CLIENT_ID=461655867322-08i9h35a0cjmeivo4vtckj7d2ih8pgtl.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=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
+
+# GitHub OAuth
+GITHUB_CLIENT_ID=Ov23lif9zL2FSVnEVeaO
+GITHUB_CLIENT_SECRET=49f00f4362b1c66b30ca2613d582e0f9295df62c
+
+# Paramètres du serveur
+HTTP_PORT=8085
+HTTPS_PORT=8443
+DOMAIN=localhost
+
+# Chemins du projet
+DB_PATH=./forum.db
+CERT_DIR=./certs
+UPLOAD_DIR=./static/uploads
+
+# Mode de développement (true/false)
+DEV_MODE=true
+
+Commande BASH à utiliser avant de lancer le forum
+export GOOGLE_CLIENT_ID="461655867322-08i9h35a0cjmeivo4vtckj7d2ih8pgtl.apps.googleusercontent.com"
+export GOOGLE_CLIENT_SECRET="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"
+export GITHUB_CLIENT_ID="Ov23lif9zL2FSVnEVeaO"
+export GITHUB_CLIENT_SECRET="49f00f4362b1c66b30ca2613d582e0f9295df62c"
