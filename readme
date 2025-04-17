@@ -4,6 +4,11 @@ Groupe de :
 -Anderson (N'est même pas dans le git)
 -Paolo (Il a regardé le code...)
 
+
+Register login , création de post , like dislike, commentaire, possibilité de mettre des images dans les post, filtre catégorie, page profile activité , connexion google github, 
+
+
+
 # Commande BASH à utiliser avant de lancer le forum
 export GOOGLE_CLIENT_ID="461655867322-08i9h35a0cjmeivo4vtckj7d2ih8pgtl.apps.googleusercontent.com"
 export GOOGLE_CLIENT_SECRET="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"
