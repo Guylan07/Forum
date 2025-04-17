@@ -71,3 +71,8 @@
 - Code following best practices
 - Recommended unit testing
 - Only allowed packages: standard Go, sqlite3, bcrypt, UUID, autocert
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+test
